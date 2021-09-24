@@ -2,6 +2,7 @@
   <div>
     <el-table :data="tableData" style="width: 100%">
       <el-table-column prop="_id" label="分类ID" width="250"></el-table-column>
+      <el-table-column prop="parent.name" label="上级分类"> </el-table-column>
       <el-table-column prop="name" label="分类名"> </el-table-column>
       <el-table-column fixed="right" label="操作" width="200">
         <template slot-scope="scope">
@@ -29,7 +30,7 @@ export default {
   },
   methods: {
     async fetch() {
-      const res = await this.$http.get("categories");
+      const res = await this.$http.get("rest/categories");
       this.tableData = res.data;
     },
     remove(row) {
@@ -38,7 +39,7 @@ export default {
         cancelButtonText: "取消",
         type: "warning",
       }).then(async () => {
-        await this.$http.delete(`categories/${row._id}`);
+        await this.$http.delete(`rest/categories/${row._id}`);
         this.$message({
           type: "success",
           message: "删除成功!",
