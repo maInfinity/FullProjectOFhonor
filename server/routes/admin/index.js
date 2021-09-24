@@ -4,8 +4,25 @@ module.exports = app => {
     const Category = require('../../models/Category')
     router.post('/categories', async (req, res) => {
         const model = await Category.create(req.body)
-        console.log('qingqiu')
         res.send(model)
+    })
+    router.put('/categories/:id', async (req, res) => {
+        const model = await Category.findByIdAndUpdate(req.params.id, req.body)
+        res.send(model)
+    })
+    router.delete('/categories/:id', async (req, res) => {
+        await Category.findByIdAndDelete(req.params.id)
+        res.send({
+            success: true
+        })
+    })
+    router.get('/categories', async (req, res) => {
+        const list = await Category.find().limit(10)
+        res.send(list)
+    })
+    router.get('/categories/:id', async (req, res) => {
+        const list = await Category.findById(req.params.id)
+        res.send(list)
     })
     app.use('/admin/api', router)
 }

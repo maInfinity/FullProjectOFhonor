@@ -1,7 +1,7 @@
 <template>
   <div>
-    <h1>新建列表</h1>
-    <el-form @submit.native.prevent='save'>
+    <h1>{{ id ? "编辑" : "新建" }}分类</h1>
+    <el-form @submit.native.prevent="save">
       <el-form-item label="名称">
         <el-input v-model="model.name"></el-input>
       </el-form-item>
@@ -14,22 +14,37 @@
 
 <script>
 export default {
-    data() {
-        return {
-            model:{
-                name
-            }
-        }
+  props: {
+    id: {},
+  },
+  data() {
+    return {
+      model: {},
+    };
+  },
+  methods: {
+    async save() {
+      let res
+      if (this.id) {
+        res = await this.$http.put(`categories/${this.id}`,this.model)
+        console.log(res)
+      } else {
+        res = await this.$http.post("categories", this.model);
+        console.log(res)
+      }
+      this.$router.push("/categories/list");
+      this.$message({
+        type: "success",
+        message: "保存成功",
+      });
     },
-    methods: {
-        async save() {
-            await this.$http.post('categories', this.model)
-            this.$router.push('/categories/list')
-            this.$message({
-                type: 'success',
-                message: '保存成功'
-            })
-        }
+    async fetch() {
+      const res = await this.$http.get(`categories/${this.id}`);
+      this.model = res.data;
     },
-}
+  },
+  created() {
+    this.id && this.fetch();
+  },
+};
 </script>
