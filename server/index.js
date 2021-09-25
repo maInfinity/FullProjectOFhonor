@@ -5,6 +5,7 @@ const app = express()
 app.use(express.json())
 app.use(require('cors')())
 app.use('/uploads', express.static(__dirname + '/uploads'))
+app.set('secret','feqnfini21')
 require('./plugins/db')(app)
 require('./routes/admin')(app)
 
