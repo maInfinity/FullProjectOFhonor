@@ -107,7 +107,7 @@
                   class="avatar-uploader"
                   :action="$http.defaults.baseURL + '/upload'"
                   :show-file-list="false"
-                  :on-success="afterUpload"
+                  :on-success="res => $set(item,'icon',res.url)"
                 >
                   <img v-if="item.icon" :src="item.icon" class="avatar" />
                   <i v-else class="el-icon-plus avatar-uploader-icon"></i>
@@ -118,6 +118,9 @@
               </el-form-item>
               <el-form-item label="小提示">
                 <el-input v-model="item.tips" type="textarea"></el-input>
+              </el-form-item>
+              <el-form-item>
+                <el-button size="small" type="danger" @click="model.skills.splice(i,1)">删除</el-button>
               </el-form-item>
             </el-col>
           </el-row>
@@ -133,31 +136,6 @@
   </div>
 </template>
 
-<style>
-.avatar-uploader .el-upload {
-  border: 1px dashed #d9d9d9;
-  border-radius: 6px;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-}
-.avatar-uploader .el-upload:hover {
-  border-color: #409eff;
-}
-.avatar-uploader-icon {
-  font-size: 28px;
-  color: #8c939d;
-  width: 178px;
-  height: 178px;
-  line-height: 178px;
-  text-align: center;
-}
-.avatar {
-  width: 178px;
-  height: 178px;
-  display: block;
-}
-</style>
 
 <script>
 export default {
@@ -179,9 +157,7 @@ export default {
     };
   },
   methods: {
-    afterUpload(res) {
-      this.model.avatar = res.url;
-    },
+    
     async save() {
       let res;
       if (this.id) {
