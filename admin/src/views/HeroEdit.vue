@@ -157,7 +157,9 @@ export default {
     };
   },
   methods: {
-    
+    afterUpload(res) {
+      this.model.avatar = res.url
+    },
     async save() {
       let res;
       if (this.id) {
