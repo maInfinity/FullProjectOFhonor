@@ -3,7 +3,13 @@ module.exports = app => {
     const router = express.Router({
         mergeParams: true
     })
-    router.get('/', async (req, res) => {
+    const jwt = require('jsonwebtoken')
+    const AdminUser = require('../../models/AdminUser')
+    const assert = require('http-assert')
+    //登录校验中间件
+    const authMiddleware = require('../../middleware/auth')
+    const resourceMiddleware = require('../../middleware/resource')
+    router.get('/',  async (req, res) => {
         const queryOptions = {}
         if (req.Model.modelName === 'Category') {
             queryOptions.populate = 'parent'
@@ -29,11 +35,7 @@ module.exports = app => {
         const list = await req.Model.findById(req.params.id)
         res.send(list)
     })
-    app.use('/admin/api/rest/:resource', async (req, res, next) => {
-        const modelName = require('inflection').classify(req.params.resource)
-        req.Model = require(`../../models/${modelName}`)
-        next()
-    }, router)
+    app.use('/admin/api/rest/:resource', authMiddleware(),resourceMiddleware(), router)
 
     const multer = require('multer')
     const upload = multer({ dest: __dirname + '/../../uploads' })
@@ -45,23 +47,29 @@ module.exports = app => {
 
     app.post('/admin/api/login', async (req, res) => {
         const { username, password } = req.body
-        const AdminUser = require('../../models/AdminUser')
         const user = await AdminUser.findOne({ username }).select('+password')
-        if (!user) {
+        assert(user,422,'用户不存在')
+        /* if (!user) {
             return res.status(422).send({
                 message: '用户不存在'
             })
-        }
+        } */
         const isValid = require('bcryptjs').compareSync(password, user.password)
-        if (!isValid) {
+        assert(isValid,422,'密码错误')
+        /* if (!isValid) {
             return res.status(422).send({
                 message: '密码错误'
             })
-        }
-        const jwt = require('jsonwebtoken')
+        } */
         const token = jwt.sign({
             id: user._id,
         }, app.get('secret'))
         res.send({token})
+    })
+
+    app.use(async (err, req,res,next) => {
+        res.status(err.statusCode || 500).send({
+            message: err.message
+        })
     })
 }
